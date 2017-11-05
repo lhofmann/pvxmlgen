@@ -43,11 +43,11 @@ def doxygen_version():
 def doxygen_execute(files):
     xmlnodes = []
     inputs = ' '.join('"' + os.path.abspath(filename) + '"' for filename in files)
-    with tempfile.TemporaryDirectory() as tmpdirname:        
+    with tempfile.TemporaryDirectory() as tmpdirname:
         doxygen_config = DOXYGEN_CFG.format(input=inputs, outdir=tmpdirname).encode('utf-8')
         doxygen = Popen(['doxygen', '-'], cwd=tmpdirname, stdout=PIPE, stdin=PIPE, stderr=PIPE)
         doxygen_output, doxygen_error = doxygen.communicate(input=doxygen_config)
-        if doxygen.returncode != 0:            
+        if doxygen.returncode != 0:
             print(doxygen_output.decode('utf-8'))
             print(doxygen_error.decode('utf-8'))
             print('Error while executing doxygen')
@@ -57,7 +57,7 @@ def doxygen_execute(files):
                 root = ET.parse(xmlfile).getroot()
                 xmlnodes.append((xmlfile, root))
             except ET.ParseError:
-                print('Error parsing {}'.format(xmlfile))            
+                print('Error parsing {}'.format(xmlfile))
 
     return xmlnodes
 
