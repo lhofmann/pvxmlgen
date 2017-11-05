@@ -26,7 +26,13 @@ protected:
 	int MemberC[2] {1,2};
 
 	/** @pv_member */
-	int MemberD[2] = {3,4};
+	double MemberD[2] = {3, 4};
+
+	/** @pv_member */
+	char* str1 {nullptr};
+
+	/** @pv_member */
+	bool MemberE = true;
 };
 
 #endif

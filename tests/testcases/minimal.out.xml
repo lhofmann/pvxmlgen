@@ -1,0 +1,40 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="Minimal"
+                 class="vtkMinimal"
+                 label="Minimal Filter Example">
+      <IntVectorProperty name="MemberA"
+                         label="A"
+                         command="SetMemberA"
+                         number_of_elements="1"
+                         default_values="1" />
+      <IntVectorProperty name="MemberB"
+                         label="MemberB"
+                         command="SetMemberB"
+                         number_of_elements="1"
+                         default_values="2" />
+      <IntVectorProperty name="MemberC"
+                         label="MemberC"
+                         command="SetMemberC"
+                         number_of_elements="2"
+                         default_values="1 2" />
+      <DoubleVectorProperty name="MemberD"
+                         label="MemberD"
+                         command="SetMemberD"
+                         number_of_elements="2"
+                         default_values="3 4" />
+      <StringVectorProperty
+                    name="str1"
+                    command="Setstr1"
+                    number_of_elements="1"
+                    default_values="" />        
+      <IntVectorProperty name="MemberE"
+                         label="MemberE"
+                         command="SetMemberE"
+                         number_of_elements="1"
+                         default_values="1">
+        <BooleanDomain name="bool"/>
+      </IntVectorProperty>                                              
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
