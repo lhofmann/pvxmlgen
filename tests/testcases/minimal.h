@@ -3,7 +3,7 @@
 
 #include <vtkAlgorithm.h>
 
-/** @pv_plugin{sources} 
+/** @pv_plugin{filters} 
  *  @pv_attr{label, Minimal Filter Example} 
  */
 class vtkMinimal : public vtkAlgorithm {

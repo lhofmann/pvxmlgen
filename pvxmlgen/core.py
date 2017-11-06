@@ -104,9 +104,9 @@ def doxygen_parse_classes(xmlnodes):
                     paraview_defs['members'][name] = {}
                     paraview_defs['members'][name]['type'] = member_type
                     argsstring = member.find('argsstring')
-                    paraview_defs['members'][name]['argsstring'] = argsstring.text if argsstring else None
+                    paraview_defs['members'][name]['argsstring'] = None if argsstring is None else argsstring.text
                     initializer = member.find('initializer')
-                    paraview_defs['members'][name]['initializer'] = initializer.text if initializer else None
+                    paraview_defs['members'][name]['initializer'] = None if initializer is None else initializer.text
                     paraview_defs['members'][name]['defs'] = member_defs
 
             classes[class_name] = paraview_defs
@@ -174,14 +174,68 @@ def parse_initializer(initializer, value_type, number_of_elements):
             if not re.match(r'^[+-]?(?=[.]?[0-9])[0-9]*(?:[.][0-9]*)?(?:[Ee][+-]?[0-9]+)?$', value):
                 print('Invalid floating point value: {}'.format(value))
                 return None
+        elif value_type == 'char *':
+            if value.lower() in ['0', 'null', 'nullptr']:
+                value = ''
+            elif value[0] == '"' and value[-1] == '"':
+                value = value[1:-1]
+            else:
+                print('Invalid string value: {}'.format(value))
+                return None
         initializer[i] = value
     return ' '.join(initializer)
+
+
+def parse_xml_command(command):
+    command_type, name, value = None, None, None
+    if 'type' in command.attrib.keys():
+        command_type = command.attrib['type']
+        if 'name' in command.attrib.keys():
+            name = command.attrib['name']
+        if 'value' in command.attrib.keys():
+            value = command.attrib['value']
+    return command_type, name, value
+
+
+def execute_class_command(parent, node, command):
+    command_type, name, value = parse_xml_command(command)
+    if (command_type == 'proxygroup') and (value is not None):
+        parent.attrib['name'] = value
+    elif (command_type == 'attribute') and (name is not None) and (value is not None):
+        node.attrib[name] = value.strip()
+    elif (command_type == 'insert'):
+        for child in command:
+            node.append(child)
+    elif command_type is not None:
+        print('Unrecognized class command: ({}, {}, {})'.format(command_type, name, value))
+
+
+def execute_member_command(parent, node, command):
+    command_type, name, value = parse_xml_command(command)
+    if (command_type == 'attribute') and (name is not None) and (value is not None):
+        node.attrib[name] = value.strip()
+    elif (command_type == 'insert'):
+        for child in command:
+            node.append(child)
+    elif (command_type == 'append'):
+        for child in command:
+            parent.append(child)
+    elif command_type is not None:
+        print('Unrecognized class command: ({}, {}, {})'.format(command_type, name, value))
 
 
 def paraview_class_xml(class_name, paraview_defs):
     root = ET.Element('ServerManagerConfiguration')
     proxygroup = ET.SubElement(root, 'ProxyGroup')
     sourceproxy = ET.SubElement(proxygroup, 'SourceProxy')
+    sourceproxy.attrib['class'] = class_name
+    class_label = class_name
+    if class_label.startswith('vtk'):
+        class_label = class_label[3:]
+    sourceproxy.attrib['label'] = class_label
+    sourceproxy.attrib['name'] = class_label
+    for command in paraview_defs['defs']:
+        execute_class_command(proxygroup, sourceproxy, command)
     for member_name, info in paraview_defs['members'].items():
         member_node = ET.SubElement(sourceproxy, TYPE_XML_TAG[info['type']])
         member_node.attrib['name'] = member_name
@@ -191,10 +245,15 @@ def paraview_class_xml(class_name, paraview_defs):
         if number_of_elements is None:
             return None
         member_node.attrib['number_of_elements'] = str(number_of_elements)
+        if info['type'] == 'bool':
+            domain = ET.SubElement(member_node, 'BooleanDomain')
+            domain.attrib['name'] = 'bool'
         if info['initializer']:
             default_values = parse_initializer(info['initializer'], info['type'], number_of_elements)
             if default_values is None:
                 return None
             if default_values:
                 member_node.attrib['default_values'] = default_values
+        for command in info['defs']:
+            execute_member_command(sourceproxy, member_node, command)
     return root

@@ -3,10 +3,46 @@ import hypothesis.strategies as st
 import os
 import pvxmlgen
 from pkg_resources import parse_version
+import xml.etree.ElementTree as ET
+from functools import cmp_to_key
 
 
 def test_doxygen():
     assert pvxmlgen.doxygen_version() >= parse_version(pvxmlgen.core.DOXYGEN_MIN_VERSION)
+
+
+# from https://stackoverflow.com/a/18488548
+def cmp_el(a, b):
+    if a.tag < b.tag:
+        return -1
+    elif a.tag > b.tag:
+        return 1
+
+    # compare attributes
+    aitems = list(a.attrib.items())
+    aitems.sort()
+    bitems = list(b.attrib.items())
+    bitems.sort()
+    if aitems < bitems:
+        return -1
+    elif aitems > bitems:
+        return 1
+
+    # compare child nodes
+    achildren = list(a)
+    achildren.sort(key=cmp_to_key(cmp_el))
+    bchildren = list(b)
+    bchildren.sort(key=cmp_to_key(cmp_el))
+
+    for achild, bchild in zip(achildren, bchildren):
+        cmpval = cmp_el(achild, bchild)
+        if cmpval < 0:
+            return -1
+        elif cmpval > 0:
+            return 1
+
+    # must be equal
+    return 0
 
 
 def test_parsing():
@@ -15,7 +51,12 @@ def test_parsing():
     nodes = pvxmlgen.core.doxygen_execute([os.path.join(test_dir, 'testcases', 'minimal.h')])
     defs = pvxmlgen.core.doxygen_parse_classes(nodes)
     assert 'vtkMinimal' in defs.keys()
-    assert pvxmlgen.core.paraview_class_xml('vtkMinimal', defs['vtkMinimal'])
+    class_xml = pvxmlgen.core.paraview_class_xml('vtkMinimal', defs['vtkMinimal'])
+    assert class_xml
+    class_xml_groundtruth = ET.parse(os.path.join(test_dir, 'testcases', 'minimal.out.xml')).getroot()
+    # import pdb
+    # pdb.set_trace()
+    assert cmp_el(class_xml, class_xml_groundtruth) == 0
 
 
 def test_argsstring():
