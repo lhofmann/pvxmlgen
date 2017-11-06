@@ -40,12 +40,9 @@ TYPE_XML_TAG = {
 def doxygen_version():
     try:
         doxygen_version = check_output([DOXYGEN_EXECUTABLE, "-v"]).decode('utf-8')
-    except OSError:
+        return parse_version(doxygen_version)
+    except (OSError, TypeError):
         return None
-    doxygen_version = parse_version(doxygen_version)
-    if doxygen_version < parse_version(DOXYGEN_MIN_VERSION):
-        return None
-    return doxygen_version
 
 
 def doxygen_execute(files):

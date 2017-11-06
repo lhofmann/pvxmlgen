@@ -2,10 +2,11 @@ from hypothesis import given
 import hypothesis.strategies as st
 import os
 import pvxmlgen
+from pkg_resources import parse_version
 
 
 def test_doxygen():
-    assert pvxmlgen.doxygen_version() is not None
+    assert pvxmlgen.doxygen_version() >= parse_version(pvxmlgen.core.DOXYGEN_MIN_VERSION)
 
 
 def test_parsing():
