@@ -257,3 +257,8 @@ def paraview_class_xml(class_name, paraview_defs):
         for command in info['defs']:
             execute_member_command(sourceproxy, member_node, command)
     return root
+
+
+def merge_class_xml(class_xml, target):
+    # TODO
+    pass
