@@ -12,9 +12,9 @@ def _count(values):
 
 def _stringify(values):
     if type(values) == list or type(values) == tuple:
-        return " ".join([str(x) for x in values])
+        return ' '.join([str(x) for x in values])
     elif type(values) == type(True):
-        return "1" if values else "0"
+        return '1' if values else '0'
     else:
         return str(values)
 
