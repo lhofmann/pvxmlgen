@@ -55,6 +55,10 @@ class XMLNode(ET.Element):
             return self.parent._find_source()
         return root
 
+    #------------------------------------------------------------------------------
+    # source proxies
+    #------------------------------------------------------------------------------
+
     def source(self, name=None, label=None, class_=None, group='sources'):
         root = self._find_group(group)
         d = { 'name': name, 'label': label, 'class': class_}
@@ -73,9 +77,77 @@ class XMLNode(ET.Element):
     def filter(self, name=None, label=None, class_=None):
         return self.source(name, label, class_, group='filters')
 
+    #------------------------------------------------------------------------------
+    # properties
+    #------------------------------------------------------------------------------
+
+    def input(self, data_types, name='Input', label='Input', port_index=0, multiple_input=False):
+        root = self._find_source()
+        d = {
+          'name': name,
+          'label': label,
+          'port_index': _stringify(port_index),
+        }
+        if multiple_input:
+            d['command'] = 'AddInputConnection'
+            d['clean_command'] = 'RemoveAllInputs'
+        else:
+            d['command'] = 'SetInputConnection'
+
+        node = XMLNode('InputProperty', d, root)
+
+        domain = XMLNode('DataTypeDomain', { 'name': 'input_type' }, node)
+        if type(data_types) != list and type(data_types) != tuple:
+            data_types = [data_types]
+        for dtype in data_types:
+            XMLNode('DataType', { 'value': dtype }, domain)
+
+        return node
+
+    def input_array(self, label, idx=0, input_domain_name='input_array', input_name='Input', 
+                    none_string=None, attribute_type=None, data_type=None):
+        root = self._find_source()
+
+        d_prop = {
+          'name': 'SelectInputScalars{}'.format(idx),
+          'label': label,
+          'command': 'SetInputArrayToProcess',
+          'default_values': _stringify(idx),
+          'element_types': '0 0 0 0 2',
+          'animateable': '0'
+        }
+
+        node = XMLNode('StringVectorProperty', d_prop, root)
+
+        d_array = {
+          'name': 'array_list',
+          'input_domain_name': input_domain_name,
+        }
+        if attribute_type is not None:
+            if attribute_type not in ['Scalars', 'Vectors']:
+                raise Exception('Invalid attribute_type')
+            d_array['attribute_type'] = attribute_type
+        if none_string is not None:
+            d_array['none_string'] = none_string
+        if data_type is not None:
+            if data_type[:4] != 'VTK_':
+                raise Exception('data_type must name a VTK_ type')
+            d_array['data_type'] = data_type
+
+        array_list = XMLNode('ArrayListDomain', d_array, node)
+        req = XMLNode('RequiredProperties', {}, field_data)
+        XMLNode('Property', { 'name': input_name, 'function': 'Input'}, req)
+
+        field_data = XMLNode('FieldDataDomain', { 'name': 'field_list' }, node)
+        req = XMLNode('RequiredProperties', {}, field_data)
+        XMLNode('Property', { 'name': input_name, 'function': 'Input'}, req)
+
+        return node
+
     def _vector(self, type_=None, name=None, label=None, 
                 command=None, command_prefix='Set', group_id=None,
-                number_of_elements=None, default_values=None):
+                number_of_elements=None, default_values=None, animateable=None,
+                panel_visibility=None):
         root = self._find_source()
 
         d = { 
@@ -85,6 +157,12 @@ class XMLNode(ET.Element):
           'number_of_elements': number_of_elements,
           'default_values': default_values,
         }
+        if animateable is not None:
+            d['animateable'] = _stringify(animateable)
+        if panel_visibility is not None:
+            if panel_visibility not in ['default', 'never', 'advanced']:
+                raise Exception('Invalid value for panel_visibility')
+            d['panel_visibility'] = panel_visibility
         try:
             if type_ is None:
                 type_ = self.context['type']
@@ -124,6 +202,37 @@ class XMLNode(ET.Element):
     def autovector(self, *args, **kwargs):
         return self._vector(**kwargs)
 
+    def group(self, label, group_id):
+        root = self._find_source()
+
+        node = XMLNode('PropertyGroup', { 'label': label }, root)
+        for child in root:
+            if hasattr(child, 'group_id') and child.group_id == group_id:
+                XMLNode('Property', { 'name': child.attrib['name'] }, node)
+
+        return node
+
+    #------------------------------------------------------------------------------
+    # property domains
+    #------------------------------------------------------------------------------
+
+    def array_domain(self, name='input_array', attribute_type='any', number_of_components=None, optional=None):
+        if self.tag != 'InputProperty':
+            raise Exception('"input_array" cannot be added to "{}"'.format(self.tag))
+        if attribute_type not in ['point', 'cell', 'any', 'row']:
+            raise Exception('Invalid attribute_type "{}"'.format(attribute_type))
+        d = { 
+          'name': name, 
+          'attribute_type': attribute_type 
+        }
+        if number_of_components is not None:
+            d['number_of_components'] = _stringify(number_of_components)
+        if optional is not None:
+            d['optional'] = _stringify(optional) 
+
+        XMLNode('InputArrayDomain', d, self)
+        return self
+
     def enumeration(self, items, values):
         if self.tag != 'IntVectorProperty':
             raise Exception('"enumeration" cannot be added to "{}"'.format(self.tag))
@@ -140,6 +249,25 @@ class XMLNode(ET.Element):
         XMLNode('BooleanDomain', { 'name': 'bool' }, self)
         return self
     
+    def range(self, min, max):
+        if self.tag == 'IntVectorProperty':
+            tag = 'IntRangeDomain'
+        elif self.tag == 'DoubleVectorProperty':
+            tag = 'DoubleRangeDomain'
+        else:
+            raise Exception('"range" cannot be added to "{}"'.format(self.tag))
+        d = { 
+          'name': 'range',
+          'min': _stringify(min),
+          'max': _stringify(max),
+        }
+        XMLNode(tag, d, self)
+        return self
+
+    #------------------------------------------------------------------------------
+    # hints
+    #------------------------------------------------------------------------------
+
     def menu(self, category):
         XMLNode('ShowInMenu', { 'category': category }, self._find_source()._get_hints())
         return self
@@ -147,16 +275,6 @@ class XMLNode(ET.Element):
     def replace_input(self, mode):
         XMLNode('Visibility', { 'replace_input': _stringify(mode) }, self._find_source()._get_hints())
         return self        
-
-    def group(self, label, group_id):
-        root = self._find_source()
-
-        node = XMLNode('PropertyGroup', { 'label': label }, root)
-        for child in root:
-            if hasattr(child, 'group_id') and child.group_id == group_id:
-                XMLNode('Property', { 'name': child.attrib['name'] }, node)
-
-        return node
 
     def widget_visibility(self, property_, value):
         if self.tag != 'PropertyGroup' and not self.tag.endswith('VectorProperty'):
@@ -171,9 +289,29 @@ class XMLNode(ET.Element):
         XMLNode('PropertyWidgetDecorator', d, self._get_hints())
         return self
 
+    def documentation(self, text=None, short_help=None, long_help=None):
+        d = {}
+        if short_help is not None:
+            d['short_help'] = short_help
+        if long_help is not None:
+            d['long_help'] = long_help            
+        node = XMLNode('Documentation', d, self)
+        if text is not None:
+            node.text = text
+        return self
+
+    #------------------------------------------------------------------------------
+    # raw XML methods
+    #------------------------------------------------------------------------------
+
     def xml(self, xml_string):
         self.append(ET.fromstring(xml_string))
         return self
+
+    def xml_property(self, xml_string):
+        root = self._find_source()
+        root.append(ET.fromstring(xml_string))
+        return root
 
     def xml_hint(self, xml_string):
         root = self
@@ -182,5 +320,5 @@ class XMLNode(ET.Element):
         if root is None or root.tag not in ['PropertyGroup', 'SourceProxy'] and not root.tag.endswith('VectorProperty'):
             raise Exception('hint cannot be added to "{}"'.format(self.tag))
 
-        self._get_hints().append(ET.fromstring(xml_string))
-        return self
+        root._get_hints().append(ET.fromstring(xml_string))
+        return root

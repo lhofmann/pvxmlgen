@@ -91,12 +91,12 @@ for i, part in enumerate(left):
             e.filename = filename
         if hasattr(e, 'lineno'):
             e.lineno += current_line - 1
-        try:
-            raise e
-        except:
-            pass
         print('Error processing {}:{}:'.format(filename, current_line))
         if hasattr(e, 'lineno'):
+            try:
+                raise e
+            except:
+                pass            
             traceback.print_exc(limit=0)
         else:
             print(e)
