@@ -5,6 +5,7 @@ install:
   - pip install pytest
   - pip install pytest-cov
   - pip install coveralls
+  - pip install flake8
 script:
   - coverage run --include=pvxmlgen.py,xml_state.py -m pytest
   - coverage report
