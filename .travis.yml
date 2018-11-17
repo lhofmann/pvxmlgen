@@ -8,5 +8,6 @@ install:
 script:
   - coverage run --include=pvxmlgen.py,xml_state.py -m pytest
   - coverage report
+  - flake8 pvxmlgen.py xml_state.py
 after_success:
   - coveralls

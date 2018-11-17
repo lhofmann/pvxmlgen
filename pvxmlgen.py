@@ -3,7 +3,6 @@ __version__ = '0.1.0'
 import xml.etree.ElementTree as ET
 import re
 import traceback
-import sys
 import xml_state
 from collections import namedtuple
 import argparse
@@ -56,7 +55,7 @@ def parse_file(s):
             raise Exception('"pv_(" in line {} has multiple ")pv_".'.format(current_line))
 
         content_lines = right[0].splitlines()
-        while len(content_lines) > 0  and content_lines[0].strip() == '':
+        while len(content_lines) > 0 and content_lines[0].strip() == '':
             current_line += 1
             content_lines = content_lines[1:]
         content = right[0].strip()
@@ -107,7 +106,7 @@ def parse_declaration(s):
             if '"' not in default_values:
                 default_values = default_values.replace('false', 'False')
                 default_values = default_values.replace('true', 'True')
-            default_values = eval('({})'.format(default_values))            
+            default_values = eval('({})'.format(default_values))
 
         context_dict['name'] = name
         context_dict['type'] = data_type
@@ -135,21 +134,22 @@ def generate_xml(s):
             current.context = parse_declaration(block.context)
         except Exception as e:
             raise ParserException(e, block.line_context)
-        namespace = { 'current': current }
+        namespace = {'current': current}
         try:
-            current = eval('current.' + block.content, namespace)    
+            current = eval('current.' + block.content, namespace)
         except Exception as e:
             raise ParserException(e, block.line_content)
 
-    return root    
+    return root
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='pvxmlgen')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s {}'.format(__version__))
     parser.add_argument('input', metavar='<input>', type=str, help='input C++ header file')
-    parser.add_argument('output', metavar='<output>', type=str, help='output XML file (use "-" to print to standard output)')
-    args = parser.parse_args()    
+    parser.add_argument('output', metavar='<output>', type=str,
+                        help='output XML file (use "-" to print to standard output)')
+    args = parser.parse_args()
 
     filename = args.input
     with open(filename) as f:
@@ -164,7 +164,7 @@ if __name__ == '__main__':
             try:
                 raise e.exception
             except:
-                pass            
+                pass
             traceback.print_exc(limit=0)
         else:
             print(e.exception)

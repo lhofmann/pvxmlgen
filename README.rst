@@ -18,17 +18,26 @@ Requirements
 Usage
 -----
 
+.. code-block:: bash
+
    $ python pvxmlgen.py [input.h] [output.xml]
 
-   or
+or
+
+.. code-block:: bash
 
    $ python pvxmlgen.py [input.h] -
 
-   for printing to standard output
+for printing to standard output
 
 
 Contributing
 ------------
 
-   $ pip install pytest
+Run tests with pytest and linter with flake8
+
+.. code-block:: bash
+
+   $ pip install pytest flake8
    $ py.test tests
+   $ flake8
