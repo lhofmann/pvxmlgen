@@ -22,12 +22,7 @@
                          label="MemberD"
                          command="SetMemberD"
                          number_of_elements="2"
-                         default_values="3 4" />
-      <StringVectorProperty
-                    name="str1"
-                    label="str1"
-                    command="Setstr1"
-                    number_of_elements="1" />        
+                         default_values="3 4" />   
       <IntVectorProperty name="MemberE"
                          label="MemberE"
                          command="SetMemberE"

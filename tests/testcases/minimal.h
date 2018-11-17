@@ -1,11 +1,9 @@
-#ifndef INC_4DVIEWER_VTK4DVIEWER_HPP
-#define INC_4DVIEWER_VTK4DVIEWER_HPP
+#ifndef MINIMAL_H
+#define MINIMAL_H
 
 #include <vtkAlgorithm.h>
 
-/** @pv_plugin{filters} 
- *  @pv_attr{label, Minimal Filter Example} 
- */
+// pv_( filter(name='Minimal', label='Minimal Filter Example') )pv_
 class vtkMinimal : public vtkAlgorithm {
 public:
 	vtkSetMacro(MemberA, int);
@@ -14,24 +12,21 @@ public:
 protected:
 	class ForwardClass;
 
-	/** @pv_member 
-	 *  @pv_attr{label, A}
-	 */
+	// pv_( intvector(label='A') )pv_
 	int MemberA = 1;
 
-	/** @pv_member */
+	// pv_( autovector() )pv_
 	int MemberB {2};
 
-	/** @pv_member */
+	// pv_( intvector() )pv_
 	int MemberC[2] {1,2};
 
-	/** @pv_member */
+	// pv_( autovector() )pv_
 	double MemberD[2] = {3, 4};
 
-	/** @pv_member */
 	char* str1 {nullptr};
 
-	/** @pv_member */
+	// pv_( autovector() )pv_
 	bool MemberE = true;
 };
 

@@ -1,14 +1,8 @@
-from hypothesis import given
-import hypothesis.strategies as st
 import os
 import pvxmlgen
-from pkg_resources import parse_version
 import xml.etree.ElementTree as ET
 from functools import cmp_to_key
-
-
-def test_doxygen():
-    assert pvxmlgen.doxygen_version() >= parse_version(pvxmlgen.core.DOXYGEN_MIN_VERSION)
+from glob import glob
 
 
 # from https://stackoverflow.com/a/18488548
@@ -47,44 +41,11 @@ def cmp_el(a, b):
 
 def test_parsing():
     test_dir = os.path.dirname(os.path.realpath(__file__))
+    test_dir = os.path.join(test_dir, 'testcases')
 
-    nodes = pvxmlgen.core.doxygen_execute([os.path.join(test_dir, 'testcases', 'minimal.h')])
-    defs = pvxmlgen.core.doxygen_parse_classes(nodes)
-    assert 'vtkMinimal' in defs.keys()
-    class_xml = pvxmlgen.core.paraview_class_xml('vtkMinimal', defs['vtkMinimal'])
-    assert class_xml
-    class_xml_groundtruth = ET.parse(os.path.join(test_dir, 'testcases', 'minimal.out.xml')).getroot()
-    # import pdb
-    # pdb.set_trace()
-    assert cmp_el(class_xml, class_xml_groundtruth) == 0
-
-
-def test_argsstring():
-    passing = ['[{}]', '[ {}]', '[{}  ]', ' [ {} ] ']
-    for s in passing:
-        assert pvxmlgen.core.parse_argsstring(s.format(1)) == 1
-        assert pvxmlgen.core.parse_argsstring(s.format(3)) == 3
-        assert pvxmlgen.core.parse_argsstring(s.format(10)) == 10
-        assert pvxmlgen.core.parse_argsstring(s.format('010')) == 10
-    failing = ['[-{}]', '[ {},]', '[{} 1]', ' [ {} + 2 ] ', '[ {}', '{}]', '{} ]']
-    for s in failing:
-        assert pvxmlgen.core.parse_argsstring(s.format(1)) is None
-        assert pvxmlgen.core.parse_argsstring(s.format(3)) is None
-        assert pvxmlgen.core.parse_argsstring(s.format(10)) is None
-        assert pvxmlgen.core.parse_argsstring(s.format('010')) is None
-
-    assert pvxmlgen.core.parse_argsstring('[0]') is None
-    assert pvxmlgen.core.parse_argsstring('[1,2,3]') is None
-
-
-@given(st.integers())
-def test_int_initializer(n):
-    passing = ['={}', '={{{}}}', '{{{}}}', ' =  {}  ', '  {{{}  }}', '    = {{ {}  }}']
-    for s in passing:
-        assert pvxmlgen.core.parse_initializer(s.format(n), 'int', 1) == str(n)
-    passing = ['={{{},{}}}', '{{{},{}}}', '  {{{}  , {}}}', '    = {{ {},{} }}']
-    for s in passing:
-        assert pvxmlgen.core.parse_initializer(s.format(n, 3*n), 'int', 2) == str(n) + ' ' + str(3*n)
-    failing = ['= {} ', '{},{}}}', '={{{},{}', '    {},{} ']
-    for s in failing:
-        assert pvxmlgen.core.parse_initializer(s.format(n, 3*n), 'int', 2) is None
+    for filename in glob(os.path.join(test_dir, '*.h')):
+        with open(filename, 'r') as f:
+            contents = f.read()
+        xml = pvxmlgen.generate_xml(contents)
+        ground_truth = ET.parse(filename + '.xml').getroot()
+        assert cmp_el(xml, ground_truth) == 0
