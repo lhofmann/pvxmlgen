@@ -31,14 +31,29 @@ class XMLNode(ET.Element):
 
     def _find_group(self, name):
         if self.tag == 'ServerManagerConfiguration':
-            for child in self:
-                if child.tag == 'ProxyGroup' and child.attrib('name') == name:
-                    return child
+            child = self.find('./ProxyGroup[@name="{}"]'.format(name))
+            if child is not None:
+                return child
             return XMLNode('ProxyGroup', {'name': name}, self)
         elif self.parent is None:
-            raise Exception('No parent')
+            raise Exception('No XML root.')
         else:
             return self.parent._find_group(name)
+
+    def _get_hints(self):
+        hints = self.find('./Hints')
+        if hints is None:
+            hints = XMLNode('Hints', {}, self)
+        return hints
+
+    def _find_source(self):
+        if self.tag == 'SourceProxy':
+            return self
+        elif self.parent is None:
+            raise Exception('No source proxy.')
+        else:
+            return self.parent._find_source()
+        return root
 
     def source(self, name=None, label=None, class_=None, group='sources'):
         root = self._find_group(group)
@@ -59,15 +74,9 @@ class XMLNode(ET.Element):
         return self.source(name, label, class_, group='filters')
 
     def _vector(self, type_=None, name=None, label=None, 
-                command=None, command_prefix='Set', 
+                command=None, command_prefix='Set', group_id=None,
                 number_of_elements=None, default_values=None):
-
-        if self.tag == 'SourceProxy':
-            root = self
-        else:
-            root = self.parent
-            if root is None or root.tag != 'SourceProxy':
-                raise Exception('Cannot add property vector to "{}"'.format(self.tag))
+        root = self._find_source()
 
         d = { 
           'name': name, 
@@ -102,7 +111,8 @@ class XMLNode(ET.Element):
         else:
             raise Exception('Invalid vector property type: {}'.format(type_))        
 
-        node = XMLNode('{}VectorProperty'.format(xml_type), d, root)        
+        node = XMLNode('{}VectorProperty'.format(xml_type), d, root)
+        node.group_id = group_id
         return node.boolean() if type_ == 'bool' else node
 
     def intvector(self, **kwargs):
@@ -116,7 +126,7 @@ class XMLNode(ET.Element):
 
     def enumeration(self, items, values):
         if self.tag != 'IntVectorProperty':
-            raise Exception('"menu" cannot be added to "{}"'.format(self.tag))
+            raise Exception('"enumeration" cannot be added to "{}"'.format(self.tag))
         if len(items) != len(values):
             raise Exception('items and values must be of same length')
         domain = XMLNode('EnumerationDomain', { 'name': 'enum' }, self)
@@ -126,15 +136,51 @@ class XMLNode(ET.Element):
 
     def boolean(self, *args, **kwargs):
         if self.tag != 'IntVectorProperty':
-            raise Exception('"menu" cannot be added to "{}"'.format(self.tag))
+            raise Exception('"boolean" cannot be added to "{}"'.format(self.tag))
         XMLNode('BooleanDomain', { 'name': 'bool' }, self)
         return self
-
+    
     def menu(self, category):
-        if self.tag != 'SourceProxy':
-            raise Exception('"menu" cannot be added to "{}"'.format(self.tag))
-        hints = self.find('Hints')
-        if not hints:
-            hints = XMLNode('Hints', {}, self)
-        XMLNode('ShowInMenu', { 'category': category }, hints)
+        XMLNode('ShowInMenu', { 'category': category }, self._find_source()._get_hints())
+        return self
+
+    def replace_input(self, mode):
+        XMLNode('Visibility', { 'replace_input': _stringify(mode) }, self._find_source()._get_hints())
         return self        
+
+    def group(self, label, group_id):
+        root = self._find_source()
+
+        node = XMLNode('PropertyGroup', { 'label': label }, root)
+        for child in root:
+            if hasattr(child, 'group_id') and child.group_id == group_id:
+                XMLNode('Property', { 'name': child.attrib['name'] }, node)
+
+        return node
+
+    def widget_visibility(self, property_, value):
+        if self.tag != 'PropertyGroup' and not self.tag.endswith('VectorProperty'):
+            raise Exception('"widget_visibility" cannot be added to "{}"'.format(self.tag))
+
+        d = {
+          'type': 'GenericDecorator',
+          'mode': 'visibility',
+          'property': _stringify(property_),
+          'value': _stringify(value),
+        }
+        XMLNode('PropertyWidgetDecorator', d, self._get_hints())
+        return self
+
+    def xml(self, xml_string):
+        self.append(ET.fromstring(xml_string))
+        return self
+
+    def xml_hint(self, xml_string):
+        root = self
+        if root.tag not in ['PropertyGroup', 'SourceProxy'] and not root.tag.endswith('VectorProperty'):
+            root = self.parent
+        if root is None or root.tag not in ['PropertyGroup', 'SourceProxy'] and not root.tag.endswith('VectorProperty'):
+            raise Exception('hint cannot be added to "{}"'.format(self.tag))
+
+        self._get_hints().append(ET.fromstring(xml_string))
+        return self
