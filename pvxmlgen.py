@@ -1,9 +1,12 @@
+__version__ = '0.1.0'
+
 import xml.etree.ElementTree as ET
 import re
 import traceback
 import sys
 import xml_state
 from collections import namedtuple
+import argparse
 
 
 class ParserException(BaseException):
@@ -142,8 +145,13 @@ def generate_xml(s):
 
 
 if __name__ == '__main__':
-    filename = '../prtl/include/prtl/vtk/prtlModel.h'
+    parser = argparse.ArgumentParser(prog='pvxmlgen')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s {}'.format(__version__))
+    parser.add_argument('input', metavar='<input>', type=str, help='input C++ header file')
+    parser.add_argument('output', metavar='<output>', type=str, help='output XML file (use "-" to print to standard output)')
+    args = parser.parse_args()    
 
+    filename = args.input
     with open(filename) as f:
         s = f.read()
 
@@ -163,4 +171,9 @@ if __name__ == '__main__':
         quit(1)
 
     indent(root)
-    print(ET.tostring(root, encoding='utf-8').decode('utf-8'))
+    output_string = ET.tostring(root, encoding='utf-8').decode('utf-8')
+    if args.output == '-':
+        print(output_string)
+    else:
+        with open(args.output, 'w', encoding='utf-8') as f:
+            f.write(output_string)
