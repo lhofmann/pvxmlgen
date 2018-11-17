@@ -45,7 +45,11 @@ for i, part in enumerate(left):
         print('Error: "pv_(" in line {}:{} has no matching ")pv_".'.format(filename, current_line))
         quit(1)
 
-    content = right[0].lstrip()
+    content_lines = right[0].splitlines()
+    while len(content_lines) > 0  and content_lines[0].strip() == '':
+        current_line += 1
+        content_lines = content_lines[1:]
+    content = right[0].strip()
 
     context_dict = {}
     context = right[1].splitlines()
@@ -66,8 +70,6 @@ for i, part in enumerate(left):
                 default_values = eval('({})'.format(default_values))
             else:
                 default_values = None
-
-            current_line += len(content.splitlines())
 
             context_dict['name'] = name
             context_dict['type'] = data_type
@@ -93,8 +95,11 @@ for i, part in enumerate(left):
             raise e
         except:
             pass
-        print('Error processing {}:{}:\n'.format(filename, current_line))
-        traceback.print_exc(limit=0)
+        print('Error processing {}:{}:'.format(filename, current_line))
+        if hasattr(e, 'lineno'):
+            traceback.print_exc(limit=0)
+        else:
+            print(e)
         quit(1)
 
 indent(root)
