@@ -1,4 +1,6 @@
-__version__ = '0.1.0'
+# python 2 compatibility
+from __future__ import print_function
+from io import open
 
 import xml.etree.ElementTree as ET
 import re
@@ -6,6 +8,8 @@ import traceback
 import xml_state
 from collections import namedtuple
 import argparse
+
+__version__ = '0.1.0'
 
 
 class ParserException(BaseException):
