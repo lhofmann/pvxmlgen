@@ -1,0 +1,403 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>xml_state.XMLNode &#8212; pvxmlgen 0.1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for xml_state.XMLNode</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+
+<span class="k">def</span> <span class="nf">_count</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">_stringify</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">True</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="s1">&#39;1&#39;</span> <span class="k">if</span> <span class="n">values</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">XMLNode</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{},</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;ServerManagerConfiguration&#39;</span>
+        <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_find_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;ServerManagerConfiguration&#39;</span><span class="p">:</span>
+            <span class="n">child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;./ProxyGroup[@name=&quot;</span><span class="si">{}</span><span class="s1">&quot;]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">child</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">child</span>
+            <span class="k">return</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;ProxyGroup&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">},</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No XML root.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_find_group</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_hints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;./Hints&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hints</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Hints&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hints</span>
+
+    <span class="k">def</span> <span class="nf">_find_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;SourceProxy&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No source proxy.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+    <span class="c1"># source proxies</span>
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="source"><a class="viewcode-back" href="../../index.html#xml_state.source">[docs]</a>    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;sources&#39;</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_group</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="n">class_</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Missing parameter: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;SourceProxy&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="filter"><a class="viewcode-back" href="../../index.html#xml_state.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">class_</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s1">&#39;filters&#39;</span><span class="p">)</span></div>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+    <span class="c1"># properties</span>
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="input"><a class="viewcode-back" href="../../index.html#xml_state.input">[docs]</a>    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Input&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Input&#39;</span><span class="p">,</span> <span class="n">port_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiple_input</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+            <span class="s1">&#39;port_index&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">port_index</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">multiple_input</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;AddInputConnection&#39;</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;clean_command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;RemoveAllInputs&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;SetInputConnection&#39;</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;InputProperty&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+        <span class="n">domain</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;DataTypeDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;input_type&#39;</span><span class="p">},</span> <span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_types</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_types</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_types</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">data_types</span><span class="p">:</span>
+            <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;DataType&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">},</span> <span class="n">domain</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="input_array"><a class="viewcode-back" href="../../index.html#xml_state.input_array">[docs]</a>    <span class="k">def</span> <span class="nf">input_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_domain_name</span><span class="o">=</span><span class="s1">&#39;input_array&#39;</span><span class="p">,</span> <span class="n">input_name</span><span class="o">=</span><span class="s1">&#39;Input&#39;</span><span class="p">,</span>
+                    <span class="n">none_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attribute_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+
+        <span class="n">d_prop</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;SelectInputScalars</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+            <span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;SetInputArrayToProcess&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;default_values&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
+            <span class="s1">&#39;element_types&#39;</span><span class="p">:</span> <span class="s1">&#39;0 0 0 0 2&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;animateable&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span>
+        <span class="p">}</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;StringVectorProperty&#39;</span><span class="p">,</span> <span class="n">d_prop</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+        <span class="n">d_array</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;array_list&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;input_domain_name&#39;</span><span class="p">:</span> <span class="n">input_domain_name</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">attribute_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attribute_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Scalars&#39;</span><span class="p">,</span> <span class="s1">&#39;Vectors&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid attribute_type&#39;</span><span class="p">)</span>
+            <span class="n">d_array</span><span class="p">[</span><span class="s1">&#39;attribute_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attribute_type</span>
+        <span class="k">if</span> <span class="n">none_string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d_array</span><span class="p">[</span><span class="s1">&#39;none_string&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">none_string</span>
+        <span class="k">if</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data_type</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;VTK_&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;data_type must name a VTK_ type&#39;</span><span class="p">)</span>
+            <span class="n">d_array</span><span class="p">[</span><span class="s1">&#39;data_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_type</span>
+
+        <span class="n">array_list</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;ArrayListDomain&#39;</span><span class="p">,</span> <span class="n">d_array</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;RequiredProperties&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">array_list</span><span class="p">)</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Property&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">input_name</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;Input&#39;</span><span class="p">},</span> <span class="n">req</span><span class="p">)</span>
+
+        <span class="n">field_data</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;FieldDataDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;field_list&#39;</span><span class="p">},</span> <span class="n">node</span><span class="p">)</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;RequiredProperties&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">field_data</span><span class="p">)</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Property&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">input_name</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;Input&#39;</span><span class="p">},</span> <span class="n">req</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="_vector"><a class="viewcode-back" href="../../index.html#xml_state._vector">[docs]</a>    <span class="k">def</span> <span class="nf">_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">command_prefix</span><span class="o">=</span><span class="s1">&#39;Set&#39;</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">number_of_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_values</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">animateable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">panel_visibility</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+            <span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+            <span class="s1">&#39;number_of_elements&#39;</span><span class="p">:</span> <span class="n">number_of_elements</span><span class="p">,</span>
+            <span class="s1">&#39;default_values&#39;</span><span class="p">:</span> <span class="n">default_values</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">animateable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;animateable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">animateable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">panel_visibility</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">panel_visibility</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;never&#39;</span><span class="p">,</span> <span class="s1">&#39;advanced&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid value for panel_visibility&#39;</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;panel_visibility&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">panel_visibility</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">type_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">type_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="n">command_prefix</span> <span class="o">+</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_elements&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_elements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;number_of_elements&#39;</span><span class="p">,</span> <span class="n">_count</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Missing parameter: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;default_values&#39;</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_elements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_elements&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span> <span class="ow">or</span> <span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;bool&#39;</span><span class="p">:</span>
+            <span class="n">xml_type</span> <span class="o">=</span> <span class="s1">&#39;Int&#39;</span>
+        <span class="k">elif</span> <span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;double&#39;</span> <span class="ow">or</span> <span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span>
+            <span class="n">xml_type</span> <span class="o">=</span> <span class="s1">&#39;Double&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid vector property type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">VectorProperty&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xml_type</span><span class="p">),</span> <span class="n">d</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">group_id</span> <span class="o">=</span> <span class="n">group_id</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">boolean</span><span class="p">()</span> <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s1">&#39;bool&#39;</span> <span class="k">else</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="intvector"><a class="viewcode-back" href="../../index.html#xml_state.intvector">[docs]</a>    <span class="k">def</span> <span class="nf">intvector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">type_</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="doublevector"><a class="viewcode-back" href="../../index.html#xml_state.doublevector">[docs]</a>    <span class="k">def</span> <span class="nf">doublevector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="n">type_</span><span class="o">=</span><span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="autovector"><a class="viewcode-back" href="../../index.html#xml_state.autovector">[docs]</a>    <span class="k">def</span> <span class="nf">autovector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="group"><a class="viewcode-back" href="../../index.html#xml_state.group">[docs]</a>    <span class="k">def</span> <span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">group_id</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;PropertyGroup&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">},</span> <span class="n">root</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s1">&#39;group_id&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">group_id</span> <span class="o">==</span> <span class="n">group_id</span><span class="p">:</span>
+                <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Property&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]},</span> <span class="n">node</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">node</span></div>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+    <span class="c1"># property domains</span>
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="array_domain"><a class="viewcode-back" href="../../index.html#xml_state.array_domain">[docs]</a>    <span class="k">def</span> <span class="nf">array_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_array&#39;</span><span class="p">,</span> <span class="n">attribute_type</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="n">number_of_components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;InputProperty&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;input_array&quot; cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">attribute_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;row&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Invalid attribute_type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attribute_type</span><span class="p">))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;attribute_type&#39;</span><span class="p">:</span> <span class="n">attribute_type</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">number_of_components</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;number_of_components&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">number_of_components</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">optional</span><span class="p">)</span>
+
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;InputArrayDomain&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="enumeration"><a class="viewcode-back" href="../../index.html#xml_state.enumeration">[docs]</a>    <span class="k">def</span> <span class="nf">enumeration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;IntVectorProperty&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;enumeration&quot; cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;items and values must be of same length&#39;</span><span class="p">)</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;EnumerationDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">},</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+            <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Entry&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">text</span><span class="p">)},</span> <span class="n">domain</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="boolean"><a class="viewcode-back" href="../../index.html#xml_state.boolean">[docs]</a>    <span class="k">def</span> <span class="nf">boolean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;IntVectorProperty&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;boolean&quot; cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;BooleanDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">},</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="range"><a class="viewcode-back" href="../../index.html#xml_state.range">[docs]</a>    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;IntVectorProperty&#39;</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;IntRangeDomain&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;DoubleVectorProperty&#39;</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;DoubleRangeDomain&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;range&quot; cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;range&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="nb">min</span><span class="p">),</span>
+            <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+    <span class="c1"># hints</span>
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="menu"><a class="viewcode-back" href="../../index.html#xml_state.menu">[docs]</a>    <span class="k">def</span> <span class="nf">menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;ShowInMenu&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">category</span><span class="p">},</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span><span class="o">.</span><span class="n">_get_hints</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="replace_input"><a class="viewcode-back" href="../../index.html#xml_state.replace_input">[docs]</a>    <span class="k">def</span> <span class="nf">replace_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Visibility&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;replace_input&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">mode</span><span class="p">)},</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span><span class="o">.</span><span class="n">_get_hints</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="widget_visibility"><a class="viewcode-back" href="../../index.html#xml_state.widget_visibility">[docs]</a>    <span class="k">def</span> <span class="nf">widget_visibility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">property_</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;PropertyGroup&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;VectorProperty&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;widget_visibility&quot; cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;GenericDecorator&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mode&#39;</span><span class="p">:</span> <span class="s1">&#39;visibility&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;property&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">property_</span><span class="p">),</span>
+            <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;PropertyWidgetDecorator&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hints</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="documentation"><a class="viewcode-back" href="../../index.html#xml_state.documentation">[docs]</a>    <span class="k">def</span> <span class="nf">documentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">short_help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">long_help</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">short_help</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;short_help&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">short_help</span>
+        <span class="k">if</span> <span class="n">long_help</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;long_help&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">long_help</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Documentation&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+    <span class="c1"># raw XML methods</span>
+    <span class="c1"># ------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="xml"><a class="viewcode-back" href="../../index.html#xml_state.xml">[docs]</a>    <span class="k">def</span> <span class="nf">xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_string</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="xml_property"><a class="viewcode-back" href="../../index.html#xml_state.xml_property">[docs]</a>    <span class="k">def</span> <span class="nf">xml_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_source</span><span class="p">()</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_string</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">root</span></div>
+
+<div class="viewcode-block" id="xml_hint"><a class="viewcode-back" href="../../index.html#xml_state.xml_hint">[docs]</a>    <span class="k">def</span> <span class="nf">xml_hint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_string</span><span class="p">):</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;PropertyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;SourceProxy&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;VectorProperty&#39;</span><span class="p">):</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;PropertyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;SourceProxy&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;VectorProperty&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;hint cannot be added to &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+
+        <span class="n">root</span><span class="o">.</span><span class="n">_get_hints</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_string</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">root</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">pvxmlgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=lhofmann&repo=pvxmlgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Lutz Hofmann.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/lhofmann/pvxmlgen" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
