@@ -3,40 +3,25 @@ import pvxmlgen
 import xml.etree.ElementTree as ET
 from functools import cmp_to_key
 from glob import glob
+import difflib
 
 
-# from https://stackoverflow.com/a/18488548
-def cmp_el(a, b):
-    if a.tag < b.tag:
-        return -1
-    elif a.tag > b.tag:
-        return 1
+class ComparableElement(object):
+    def __init__(self, element):
+        self.element = element
+        pvxmlgen.indent(self.element)
 
-    # compare attributes
-    aitems = list(a.attrib.items())
-    aitems.sort()
-    bitems = list(b.attrib.items())
-    bitems.sort()
-    if aitems < bitems:
-        return -1
-    elif aitems > bitems:
-        return 1
+    def xml_diff(self, other, differ=difflib.context_diff):
+        left_str = ET.tostring(self.element, encoding='utf-8').decode('utf-8')
+        right_str = ET.tostring(other.element, encoding='utf-8').decode('utf-8')
 
-    # compare child nodes
-    achildren = list(a)
-    achildren.sort(key=cmp_to_key(cmp_el))
-    bchildren = list(b)
-    bchildren.sort(key=cmp_to_key(cmp_el))
+        left_str = left_str.splitlines(keepends=True)
+        right_str = right_str.splitlines(keepends=True)
 
-    for achild, bchild in zip(achildren, bchildren):
-        cmpval = cmp_el(achild, bchild)
-        if cmpval < 0:
-            return -1
-        elif cmpval > 0:
-            return 1
+        return list(differ(left_str, right_str))
 
-    # must be equal
-    return 0
+    def __eq__(self, other):
+        return len(self.xml_diff(other)) == 0
 
 
 def test_parsing():
@@ -48,4 +33,4 @@ def test_parsing():
             contents = f.read()
         xml = pvxmlgen.generate_xml(contents)
         ground_truth = ET.parse(filename + '.xml').getroot()
-        assert cmp_el(xml, ground_truth) == 0
+        assert ComparableElement(xml) == ComparableElement(ground_truth)
