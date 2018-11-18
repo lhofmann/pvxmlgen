@@ -1,5 +1,11 @@
 import xml.etree.ElementTree as ET
 
+# make sure to use a python implementation of ET.Element
+if hasattr(ET, '_Element_Py'):
+    XMLElement = ET._Element_Py
+else:
+    XMLElement = ET.Element
+
 
 def _count(values):
     if type(values) == list or type(values) == tuple:
@@ -19,15 +25,26 @@ def _stringify(values):
         return str(values)
 
 
-class XMLNode(ET.Element):
+class XMLNode(XMLElement):
     def __init__(self, tag=None, attrib={}, parent=None):
         if tag is None:
             tag = 'ServerManagerConfiguration'
-        ET.Element.__init__(self, tag, attrib)
+        ET._Element_Py.__init__(self, tag, attrib)
         self.parent = parent
         if self.parent is not None:
             self.parent.append(self)
         self.context = {}
+
+    @staticmethod
+    def wrap(element):
+        result = XMLNode(element.tag, element.attrib)
+        result.text = element.text
+        result.tail = element.tail
+        for child in element:
+            wrapped_child = XMLNode.wrap(child)
+            result.append(wrapped_child)
+            wrapped_child.parent = result
+        return result
 
     def _find_group(self, name):
         if self.tag == 'ServerManagerConfiguration':
@@ -315,13 +332,14 @@ class XMLNode(ET.Element):
     # ------------------------------------------------------------------------------
 
     def xml(self, xml_string):
-        self.append(ET.fromstring(xml_string))
-        return self
+        root = XMLNode.wrap(ET.fromstring(xml_string))
+        self.append(root)
+        root.parent = self
+        return root
 
     def xml_property(self, xml_string):
         root = self._find_source()
-        root.append(ET.fromstring(xml_string))
-        return root
+        return root.xml(xml_string)
 
     def xml_hint(self, xml_string):
         root = self
@@ -330,5 +348,4 @@ class XMLNode(ET.Element):
         if root is None or root.tag not in ['PropertyGroup', 'SourceProxy'] and not root.tag.endswith('VectorProperty'):
             raise Exception('hint cannot be added to "{}"'.format(self.tag))
 
-        root._get_hints().append(ET.fromstring(xml_string))
-        return root
+        return root._get_hints().xml(xml_string)
