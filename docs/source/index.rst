@@ -1,6 +1,9 @@
 
 .. include:: ../../README.rst
 
+Getting Started
+---------------
+
 Reference
 ---------
 
