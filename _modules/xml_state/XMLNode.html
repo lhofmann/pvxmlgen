@@ -128,6 +128,10 @@
 
         <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;InputProperty&#39;</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
 
+        <span class="n">pgd</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;ProxyGroupDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;groups&#39;</span><span class="p">},</span> <span class="n">node</span><span class="p">)</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sources&#39;</span><span class="p">},</span> <span class="n">pgd</span><span class="p">)</span>
+        <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;filters&#39;</span><span class="p">},</span> <span class="n">pgd</span><span class="p">)</span>
+
         <span class="n">domain</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;DataTypeDomain&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;input_type&#39;</span><span class="p">},</span> <span class="n">node</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_types</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_types</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
             <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_types</span><span class="p">]</span>
@@ -146,7 +150,8 @@
             <span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;SetInputArrayToProcess&#39;</span><span class="p">,</span>
             <span class="s1">&#39;default_values&#39;</span><span class="p">:</span> <span class="n">_stringify</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span>
             <span class="s1">&#39;element_types&#39;</span><span class="p">:</span> <span class="s1">&#39;0 0 0 0 2&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;animateable&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span>
+            <span class="s1">&#39;number_of_elements&#39;</span><span class="p">:</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;animateable&#39;</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">node</span> <span class="o">=</span> <span class="n">XMLNode</span><span class="p">(</span><span class="s1">&#39;StringVectorProperty&#39;</span><span class="p">,</span> <span class="n">d_prop</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
