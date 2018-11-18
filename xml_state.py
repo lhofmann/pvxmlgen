@@ -206,10 +206,14 @@ class XMLNode(ET.Element):
     def autovector(self, *args, **kwargs):
         return self._vector(**kwargs)
 
-    def group(self, label, group_id):
+    def group(self, label, group_id, panel_visibility=None):
         root = self._find_source()
 
-        node = XMLNode('PropertyGroup', {'label': label}, root)
+        d = {'label': label}
+        if panel_visibility is not None:
+            d['panel_visibility'] = panel_visibility
+        node = XMLNode('PropertyGroup', d, root)
+
         for child in root:
             if hasattr(child, 'group_id') and child.group_id == group_id:
                 XMLNode('Property', {'name': child.attrib['name']}, node)
@@ -253,7 +257,7 @@ class XMLNode(ET.Element):
         XMLNode('BooleanDomain', {'name': 'bool'}, self)
         return self
 
-    def range(self, min, max):
+    def range(self, min=None, max=None):
         if self.tag == 'IntVectorProperty':
             tag = 'IntRangeDomain'
         elif self.tag == 'DoubleVectorProperty':
@@ -262,9 +266,11 @@ class XMLNode(ET.Element):
             raise Exception('"range" cannot be added to "{}"'.format(self.tag))
         d = {
             'name': 'range',
-            'min': _stringify(min),
-            'max': _stringify(max),
         }
+        if min is not None:
+            d['min'] = _stringify(min)
+        if max is not None:
+            d['max'] = _stringify(max)
         XMLNode(tag, d, self)
         return self
 
