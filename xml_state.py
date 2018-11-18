@@ -95,6 +95,10 @@ class XMLNode(ET.Element):
 
         node = XMLNode('InputProperty', d, root)
 
+        pgd = XMLNode('ProxyGroupDomain', {'name': 'groups'}, node)
+        XMLNode('Group', {'name': 'sources'}, pgd)
+        XMLNode('Group', {'name': 'filters'}, pgd)
+
         domain = XMLNode('DataTypeDomain', {'name': 'input_type'}, node)
         if type(data_types) != list and type(data_types) != tuple:
             data_types = [data_types]
@@ -113,7 +117,8 @@ class XMLNode(ET.Element):
             'command': 'SetInputArrayToProcess',
             'default_values': _stringify(idx),
             'element_types': '0 0 0 0 2',
-            'animateable': '0'
+            'number_of_elements': '5',
+            'animateable': '0',
         }
 
         node = XMLNode('StringVectorProperty', d_prop, root)
