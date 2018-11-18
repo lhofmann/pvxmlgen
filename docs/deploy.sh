@@ -12,5 +12,5 @@ git config user.email "lhofmann@users.noreply.github.com"
 cp -R ../pvxmlgen/docs/build/html/* ./
 
 git add -A .
-git commit -m "[ci skip] Autodoc commit for $COMMIT."
+git commit -m "[ci skip] Autodoc commit for $TRAVIS_COMMIT."
 git push -q origin gh-pages
