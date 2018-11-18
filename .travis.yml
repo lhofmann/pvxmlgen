@@ -6,9 +6,12 @@ install:
   - pip install pytest-cov
   - pip install coveralls
   - pip install flake8
+  - pip install sphinx
 script:
   - coverage run --include=pvxmlgen.py,xml_state.py -m pytest
   - coverage report
   - flake8 pvxmlgen.py xml_state.py
+  - cd docs && make html && cd ..
 after_success:
   - coveralls
+  - bash ./docs/deploy.sh
