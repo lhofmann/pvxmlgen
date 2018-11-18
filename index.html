@@ -82,7 +82,7 @@ Find out more in the <a class="reference external" href="https://lhofmann.github
 <p>Add the root directory of pvxmlgen to your CMake project with <code class="docutils literal notranslate"><span class="pre">add_subdirectory</span></code>.
 This makes the CMake function <code class="docutils literal notranslate"><span class="pre">pvxmlgen_generate</span></code> available, which (re-)generates a XML file from a header
 whenever it is modified. Note, that the XML file in the source directory is overwritten!
-An example can is provided in the subdirectory <code class="docutils literal notranslate"><span class="pre">example/</span></code>.</p>
+An example is provided in the subdirectory <code class="docutils literal notranslate"><span class="pre">example/</span></code>.</p>
 <div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_paraview_plugin</span><span class="p">(</span><span class="s">MyFilter</span> <span class="s">1.0</span>
     <span class="s">SERVER_MANAGER_XML</span> <span class="s">MyFilter.xml</span>
     <span class="s">SERVER_MANAGER_SOURCES</span> <span class="s">vtkMyFilter.cxx</span><span class="p">)</span>
