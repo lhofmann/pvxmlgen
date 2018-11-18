@@ -72,7 +72,7 @@ CMake
 Add the root directory of pvxmlgen to your CMake project with ``add_subdirectory``.
 This makes the CMake function ``pvxmlgen_generate`` available, which (re-)generates a XML file from a header
 whenever it is modified. Note, that the XML file in the source directory is overwritten! 
-An example can is provided in the subdirectory ``example/``.
+An example is provided in the subdirectory ``example/``.
 
 .. code-block:: cmake
 
